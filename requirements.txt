@@ -1,0 +1,9 @@
+dash
+dash-bootstrap-components
+plotly
+pymupdf
+transformers
+numpy
+pillow
+torch
+ollama

@@ -1,0 +1,9 @@
+.env.local
+commands
+node_modules
+pdf-helper/node_modules
+pdf-helper/package-lock.json
+.DS_Store
+__pycache__/
+misc/
+static/
