@@ -7,7 +7,6 @@ import os
 import base64
 import json
 import re
-# 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
 # "Summary": "Give general summary of the PDF",
 
 # "Images": "A short description of the image on this page. If there are multiple images, provide a list of descriptions with titles. Exclude the PDF page image itself. Focus on extracting images, block diagrams, graphs, visualizations, etc., from PDF page images.",
