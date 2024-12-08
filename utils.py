@@ -167,7 +167,20 @@ def convert_to_json(input_string):
         return "No JSON found in the input string"
 
 
-
+def chatbot_response(images, input_string):
+    load_dotenv(dotenv_path='.env.local')
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    genai.configure(api_key=GOOGLE_API_KEY)
+   
+    genai.configure(api_key=GOOGLE_API_KEY)
+    model = genai.GenerativeModel("gemini-1.5-flash",generation_config={})
+    images.append(input_string)
+    response = model.generate_content(images)
+    try:
+        return str(response.text)
+    except:
+      return response.text
+    
 
 
 
