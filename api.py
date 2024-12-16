@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from utils import pdf_to_pil_images, get_response_from_gpt, generate_faq_from_gpt, gather_all_responses, chatbot_response
+from utils import pdf_to_pil_images, get_response_from_gpt, generate_faq_from_gpt, gather_all_responses, chatbot_response, generate_questions_from_pdf
 from flask_cors import CORS
 import json
 
@@ -80,6 +80,26 @@ def chat_with_pdf():
     
     return jsonify({"error": "Invalid file format. Please upload a PDF."}), 400
 
+@app.route('/generate-questions', methods=['GET'])
+def generate_questions():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+    print(request.files)
+    file = request.files['file']
+    values = request.form['values']
+    if file and file.filename.endswith('.pdf'):
+        pdf_bytes = file.read()
+        images = pdf_to_pil_images(pdf_bytes)
+        gpt_response = generate_questions_from_pdf(images, values)
+        print((gpt_response))
+        # You might want to process these images further or store them
+        return jsonify({"message": "Response generated", "data": gpt_response}), 200
+    
+    return jsonify({"error": "Invalid file format. Please upload a PDF."}), 400
+    
+    
+    
+    
 # Main entry point for running the app
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5050)

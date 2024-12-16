@@ -17,6 +17,9 @@ import { AppBar, Toolbar } from '@mui/material';
 import ErrorBoundary from './ErrorBoundary';
 import SendIcon from '@mui/icons-material/Send';
 import Navbar from './Navbar';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 
 const useStyles = makeStyles((theme) => ({
     faqAccordionSummary: {
@@ -64,7 +67,7 @@ function Home() {
             return;
         }
 
-        if (file.size > 10000000) { // 10MB limit
+        if (file.size > 35000000) { // 10MB limit
             setError('File size too large. Please select a file under 10MB');
             setIsValidFile(false);
             setSelectedFile(null);
@@ -81,7 +84,7 @@ function Home() {
         }
     };
 
-
+    const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
     // Handle form submission
     const handleSubmit = async (event) => {
@@ -282,7 +285,7 @@ function Home() {
                             {fileUrl && (
                                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                                     <ErrorBoundary>
-                                        <Viewer fileUrl={fileUrl} />
+                                        <Viewer fileUrl={fileUrl}   plugins={[defaultLayoutPluginInstance]} />
                                     </ErrorBoundary>
                                 </Worker>
                             )}
@@ -293,7 +296,7 @@ function Home() {
                         <Card variant='outlined' sx={{ backgroundColor: '#fafafa', maxHeight: '100%' }}>
                             <CardHeader title="PDF Output" titleTypographyProps={{ variant: 'h6', fontWeight: 'bold' }} />
                             <CardContent>
-                                {pdfData ? (
+                                {Array.isArray(pdfData) && pdfData.length > 0 ? (
                                     <Typography
                                         variant="body2"
                                         color="textSecondary"
@@ -360,7 +363,19 @@ function Home() {
                                                                     </AccordionSummary>
                                                                     <AccordionDetails sx={{ p: 2 }}>
                                                                         <Typography sx={{ color: '#555', fontSize: '0.95rem' }}>
-                                                                            {page.equations.length ? page.equations.join(', ') : 'No equations available'}
+                                                                            {page.equations.length ? page.equations.map((equations, idx) => (
+                                                                            <Box
+                                                                                key={idx}
+                                                                                sx={{
+                                                                                    py: 1,
+                                                                                    borderBottom: idx < page.equations.length - 1 ? '1px solid #eee' : 'none'
+                                                                                }}
+                                                                            >
+                                                                                <Typography sx={{ color: '#555', fontSize: '0.95rem' }}>
+                                                                                    <strong style={{ color: '#4169E1' }}>{equations.description}:</strong> {equations.equation}
+                                                                                </Typography>
+                                                                            </Box>
+                                                                        )): 'No equations available'}
                                                                         </Typography>
                                                                     </AccordionDetails>
                                                                 </Accordion>

@@ -92,9 +92,9 @@ Use this JSON schema:
 
 Keywords = {'keyword': str, 'definitions': str}
 Code = {'language':str, 'summary':str}
-Images = list[str]
-Equations = list[str]
-Page = {'index': int , 'keywords': list[Keywords], 'code': Code, 'images': Images, 'equations': Equations}
+Images = {'title': str, 'description': str}
+Equations = {'equation': str, 'description': str}
+Page = {'index': int , 'keywords': list[Keywords], 'code': Code, 'images': list[Images], 'equations': list[Equations]}
 Return: list[Page]
 
 Output:
@@ -138,6 +138,9 @@ Images = list[str]
 Page = {'index': int , 'images': Images}
 Return: list[Pages]
 """
+
+
+assessment_prompt = """You are an expert teacher, skilled in producing detailed student assessments that effectively demonstrate their learning.Your task is to create a 20-questions e questions quiz, based on the following text from the pdf given, for my masters artificial intelligence students. Include key concepts, and make sure to cover all parts of the chapter. If possible try to give a application based question  Provide an answer key for the teacher.  Let the type of questions be a combination of fill in the black, multiple choice, one line answers and 3-4 lines answers."""
 
 
 def convert_to_json(input_string):
@@ -266,6 +269,33 @@ def generate_faq_from_gpt(images):
     except:
         return response.text
     
+
+# {
+#     "numQuestions": 5,
+#     "degree": "master",
+#     "subject": "Try ",
+#     "learningOutcomes": "To learn well",
+#     "questionTypes": [
+#         "fillBlanks",
+#         "multipleChoice",
+#         "shortAnswer"
+#     ]
+# }
+def generate_questions_from_pdf(images, values):
+    load_dotenv(dotenv_path='.env.local')
+    GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    genai.configure(api_key=GOOGLE_API_KEY)
+    model = genai.GenerativeModel("gemini-1.5-flash",generation_config={"response_mime_type": "application/json"})
+    assessment_prompt = f"You are an expert teacher, skilled in producing detailed student assessments that effectively demonstrate their learning. Your task is to create a {values.numQuestions}-questions  questions quiz, based on the images of the pdf given, for my {values.degree} {values.subject} students. \
+         Include key concepts, and make sure to cover all parts of the chapter. If possible try to give a application based question  Provide an answer key for the teacher.  Let the type of questions be a combination of {', '.join(values.questionTypes)}.Make sure to follow thelearning outcomes mentioned below if none then ignore:{values.learningOutcomes}"
+    print(assessment_prompt,"ASSESSMENT PROMPT")
+    images.append(assessment_prompt)
+    response = model.generate_content(images)
+    try:
+        return str(response.text)
+    except:
+        return response.text
+
 
 if __name__=="__main__":
     pdf = './static/test1.pdf'
