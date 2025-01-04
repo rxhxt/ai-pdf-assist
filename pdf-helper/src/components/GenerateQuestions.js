@@ -19,6 +19,8 @@ import {
 } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
+import Questions from './questions/Questions';
+
 
 const GenerateQuestions = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -33,7 +35,8 @@ const GenerateQuestions = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
+  const [questions, setQuestions] = useState(null);
+  const [answers, setAnswers] = useState(null);
   const degrees = [
     { value: 'junior', label: 'Junior/High School' },
     { value: 'bachelor', label: 'Bachelor\'s Degree' },
@@ -57,15 +60,27 @@ const GenerateQuestions = () => {
 
   const handleSubmit = async(event) => {
     event.preventDefault();
-    formData.append('file', selectedFile);
-    console.log('Form submitted:', formData);
+    const formDataToSend = new FormData();
+    formDataToSend.append('file', selectedFile);
+    const values = {
+      numQuestions: formData.numQuestions,
+      degree: formData.degree,
+      subject: formData.subject,
+      learningOutcomes: formData.learningOutcomes,
+      questionTypes: formData.questionTypes
+    };
+    formDataToSend.append('values', JSON.stringify(values));  
+    console.log('Form submitted:');
     try {
-      const response = await axios.post('http://localhost:5050/generate-questions', formData, {
+      const response = await axios.post('http://localhost:5050/generate-questions', formDataToSend, {
           headers: {
               'Content-Type': 'multipart/form-data',
           }
       });
-      console.log(response.data)
+      const data = JSON.parse(response.data.data);
+      console.log('Response:', data);
+      setQuestions(data);
+      setSuccess(true);
       return response.data;
 
   } catch (error) {
@@ -301,6 +316,9 @@ const GenerateQuestions = () => {
             </Grid>
           </form>
         </Paper>
+        <Container fluid sx={{ mt: 4 }} className='questions'>
+          {questions && <Questions data={questions.quiz} />}
+          </Container>
       </Box>
     </Container>
   );
