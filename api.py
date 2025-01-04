@@ -80,13 +80,15 @@ def chat_with_pdf():
     
     return jsonify({"error": "Invalid file format. Please upload a PDF."}), 400
 
-@app.route('/generate-questions', methods=['GET'])
+@app.route('/generate-questions', methods=['POST'])
 def generate_questions():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
-    print(request.files)
+    print(json.loads(request.form['values']))
+    print("-"*30)
     file = request.files['file']
-    values = request.form['values']
+    # values = request.form['values']
+    values = json.loads(request.form['values'])
     if file and file.filename.endswith('.pdf'):
         pdf_bytes = file.read()
         images = pdf_to_pil_images(pdf_bytes)

@@ -282,12 +282,13 @@ def generate_faq_from_gpt(images):
 #     ]
 # }
 def generate_questions_from_pdf(images, values):
+    print(values.get('numQuestions'),"VALUES")
     load_dotenv(dotenv_path='.env.local')
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     genai.configure(api_key=GOOGLE_API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash",generation_config={"response_mime_type": "application/json"})
-    assessment_prompt = f"You are an expert teacher, skilled in producing detailed student assessments that effectively demonstrate their learning. Your task is to create a {values.numQuestions}-questions  questions quiz, based on the images of the pdf given, for my {values.degree} {values.subject} students. \
-         Include key concepts, and make sure to cover all parts of the chapter. If possible try to give a application based question  Provide an answer key for the teacher.  Let the type of questions be a combination of {', '.join(values.questionTypes)}.Make sure to follow thelearning outcomes mentioned below if none then ignore:{values.learningOutcomes}"
+    assessment_prompt = f"You are an expert teacher, skilled in producing detailed student assessments that effectively demonstrate their learning. Your task is to create a {values.get('numQuestions', '')}-questions quiz, based on the images of the pdf given, for my {values.get('degree', '')} {values.get('subject', '')} students. \
+         Include key concepts, and make sure to cover all parts of the chapter. If possible try to give an application-based question. Provide an answer key for the teacher. Let the type of questions be a combination of {', '.join(values.get('questionTypes', []))}. Make sure to follow the learning outcomes mentioned below if none then ignore: {values.get('learningOutcomes', '')}"
     print(assessment_prompt,"ASSESSMENT PROMPT")
     images.append(assessment_prompt)
     response = model.generate_content(images)
